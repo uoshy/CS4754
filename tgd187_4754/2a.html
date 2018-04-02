@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head><title>Query Interface</title>
+
+</head>
+<body>
+<p><b>Given the name of a part, retrieve the information about each supplier who supplied it.
+</b></p>
+<br>
+<form method="post" action="2a.php" style="border:solid 1px; width:600px">
+<table>
+<br>
+<tr><td>Enter the name of the part:<input type="text" name="pname"></td></tr>
+<tr><td>Select the information you want to retrieve:</td></tr>
+<tr><td><input type="checkbox" name="sid" value="sid">Supplier ID</td></tr>
+<tr><td><input type="checkbox" name="sname" value="sname">Supplier name</td></tr>
+<tr><td><input type="checkbox" name="address" value="address">Supplier address</td></tr>
+<tr><td><input type="checkbox" name="cost" value="cost">Part cost</td></tr>
+<tr>
+<td align="left"><input type="submit" value="Submit"></td>
+</tr>
+</table>
+</form>
+
+<!--Back button-->
+<p style="position: fixed; bottom: 0; width:100%; text-align: left">
+<a href="main.html">&lt Home &gt</a>
+</p>
+
+</body>
+</html>

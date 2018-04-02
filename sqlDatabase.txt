@@ -1,0 +1,197 @@
+
+Suppliers(_sid:integer, sname: string, address: string)
+Parts(_pid: integer, pname: string, color: string)
+Catalog(_sid: integer, _pid: integer, cost: real)
+
+
+
+
+usr/pwd: 201021102 tgd187/MKhIIOVg		(mkhiiovg)
+sql server: mysql.cs.mun.ca
+database name: cs4754_<username>
+
+1. Create the above tables, and populate them with the instances.
+For this, you can do it by using the query commands directly in the mysql environment. 
+To login in directly to the mysql environment, you use the following at the command line:
+             mysql –h mysql.cs.mun.ca –u <username> -p <password>
+
+
+*pid is supposed to be integer, but given data requires string
+	therefore, both sid and pid are VARCHAR
+CREATE TABLE Suppliers (
+	sid VARCHAR(10) NOT NULL, 
+	sname VARCHAR(20),
+	address VARCHAR(20)
+	PRIMARY KEY (sid)
+);
+CREATE TABLE Parts (
+	pid VARCHAR(10) NOT NULL, 
+	pname VARCHAR(20),
+	color VARCHAR(10)
+	PRIMARY KEY (pid)
+);
+CREATE TABLE Catalog (
+	sid VARCHAR(10) NOT NULL, 
+	pid VARCHAR(10) NOT NULL,
+	cost DOUBLE(10,2)
+	PRIMARY KEY (sid, pid)
+);
+
+INSERT INTO Suppliers VALUES
+    ('111', 'John Smith', '1 Elizabeth Ave'), ('222', 'Linda Wang', '20 Main Street'),
+    ('333', 'Paul Justin', '150 Water Street'), ('444', 'Andy Brown', '1 Elizabeth Ave'),
+    ('555', 'Bob Lee', '10 Governor Road'), ('666', 'Lisa Reed', '10 Governor Road');
+INSERT INTO Parts VALUES
+    ('P1', 'Mother board', 'Grey'), ('P2', 'CPU-AMD', 'White'),
+    ('P3', 'Case', 'Grey'), ('P4', 'Monitor', 'White'), ('P5', 'Cable', 'Red');
+INSERT INTO Catalog VALUES
+    ('111', 'P1', 300), ('111', 'P3', 50), ('111', 'P4', 500), 
+    ('222', 'P1', 350), ('222', 'P2', 200), ('222', 'P3', 70), ('222', 'P5', 30), 
+    ('333', 'P2', 210), ('333', 'P3', 56), 
+    ('444', 'P1', 350), ('444', 'P2', 300), ('444', 'P3', 48), ('444', 'P4', 550), ('444', 'P5', 29), 
+    ('555', 'P3', 65), ('555', 'P4', 600);
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+2.   Implement the following types of queries as web applications:
+
+	SELECT        [DISTINCT]  target-list
+	FROM         relation-list
+	WHERE        qualification
+	GROUP BY  grouping-list
+	HAVING      group-qualification
+
+http://ils.unc.edu/bmh/courses/623/exercise2
+
+a) Given the name of a part, retrieve the information about each supplier who supplied it. This 
+	information can be any subset of the supplier’s id, supplier’s name, address, and the 
+	cost the supplier charged for that part.
+ANSWER:
+	SELECT S.*, C.cost
+	FROM Suppliers S, Catalog C, Parts P
+	WHERE S.sid = C.sid AND C.pid = P.pid AND P.pname = [name]
+
+(SEEMS CORRECT)
+- - - - - - - - - - -
+b) Given the cost, retrieve the names of the suppliers who have ever supplied a part with 
+	that cost or higher. 
+ANSWER:
+*This query says "ever supplied" may have meant never?
+NEVER:
+	SELECT S.sname					//WRONG
+	FROM Suppliers S, Catalog C
+	WHERE S.sid = C.sid AND C.cost < [cost]
+OR
+	SELECT S.sname
+	FROM Suppliers S
+	WHERE S.sid NOT IN ( SELECT S.sid
+			     FROM Suppliers S, Catalog C
+			     WHERE S.sid = C.sid AND C.cost >= [cost] )
+
+- - - -
+EVER:
+	SELECT DISTINCT S.sname			//assume no duplicate names
+	FROM Suppliers S, Catalog C
+	WHERE S.sid = C.sid AND C.cost >= [cost]
+OR
+	SELECT S.sid, S.sname
+	FROM Suppliers S, Catalog C
+	WHERE S.sid = C.sid AND C.cost >= [cost]
+	GROUP BY S.sid
+OR
+	SELECT S.sname
+	FROM Suppliers S
+	WHERE S.sid IN ( SELECT S.sid
+			FROM Suppliers S, Catalog C
+			WHERE S.sid = C.sid AND C.cost >= [cost] )
+
+(SEEMS CORRECT)
+- - - - - - - - - - -
+c) Given the pid, retrieve the names and addresses for the suppliers who charge the most 
+	for that part.
+ANSWER:
+	SELECT Tmp.sname, Tmp.address
+	FROM ( SELECT S.*, C.cost			//cA
+		FROM Suppliers S, Catalog C
+		WHERE S.sid = C.sid AND C.pid = [pid] ) AS Tmp //ppl who supply [pid]
+	WHERE Tmp.cost = (SELECT MAX(Tmp.cost)	//cB
+			  FROM Tmp )
+
+	DROP TEMPORARY TABLE IF EXISTS Tmp
+	CREATE TEMPORARY TABLE Tmp
+		(SELECT S.*, C.cost
+		FROM Suppliers S, Catalog C
+		WHERE S.sid = C.sid AND C.pid = [pid]);
+	DROP TEMPORARY TABLE IF EXISTS Tmp2
+	CREATE TEMPORARY TABLE Tmp2 (SELECT MAX(Tmp.cost) as maxCost FROM Tmp);
+	SELECT Tmp.sname, Tmp.address
+	FROM Tmp
+	WHERE Tmp.cost = Tmp2.maxCost;			//ALMOST
+
+OR
+
+	SELECT  S.sname, S.address
+	FROM Suppliers S, Catalog C, Parts P
+	WHERE C.pid = P.pid AND C.sid = S.sid AND P.pid = [pid] AND C.cost = (
+		SELECT MAX(C1.cost)
+		FROM Catalog C1
+		WHERE C1.pid = P.pid);
+(SEEMS CORRECT)
+- - - - - - - - - - -
+d) Given the color and address, retrieve the names of the parts with that color which were 
+	supplied by all the suppliers in the given address. 
+
+http://stackoverflow.com/questions/29012455/find-the-sids-of-the-suppliers-who-supply-every-part
+ANSWER:
+	( SELECT S.sid, S.address		//all sid's in given address
+	FROM Suppliers S
+	WHERE S.address = [address] ) AS Saddress
+
+	( SELECT P.pid			//all parts of given color
+	FROM Parts P
+	WHERE P.color = [color] ) AS Pcolor
+
+*	SELECT  P.sname	//select P if there dne supplier at given address that never sold given color part
+	FROM  Parts P
+	WHERE  NOT EXISTS ( (SELECT  S.sid		//All suppliers at given address
+			       FROM  Suppliers S
+			       WHERE  S.address = [address])
+			EXCEPT
+			      (SELECT  C.sid	//suppliers who supply part of given color
+			       FROM  Catalog C,
+			       WHERE C.pid = P.pid AND P.color = [color]))
+
+	SELECT  P.pname	//select P if there dne supplier at given address that never sold given color part
+	FROM  Parts P
+	WHERE  NOT EXISTS ( SELECT  S.sid		//All suppliers at given address
+			       FROM  Suppliers S
+			       WHERE  S.address = [address] AND 
+			NOT EXISTS
+			      (SELECT  C.sid	//suppliers who supply part of given color
+			       FROM  Catalog C
+			       WHERE C.pid = P.pid AND C.sid = S.sid AND P.color = [color]))
+(SEEMS CORRECT)
+- - - - - - - - - - -
+e) Given the address, retrieve the sids and names of the suppliers in that address who do not 
+	supply any part.
+ANSWER:
+	SELECT  S.sid		//All suppliers at given address
+	FROM  Suppliers S
+	WHERE  S.address = [address] AND S.sid NOT IN (
+			SELECT C.sid,		//All suppliers who sell a part
+			FROM Catalog C )
+(SEEMS CORRECT)
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+Submission:
+
+Hardcopy: A report that includes the following
+1. On the cover page, give your name, student number and project name.
+2. Explanations that give all necessary details for running your application.
+3. A screenshot of sample run of your application.
+4. The source code of the web page and php script.
+5. The relation instances for the three relations.		*Relation instances?
+
+Electronic submission:
+1. The source code for the web pages and php script. You should place these files under a 
+	single directory that is named as: <your user name>_4754. 
+	Then submit this directory electronically.
+2. The exact electronic submission process will be made known to you at some later stages.
