@@ -1,0 +1,58 @@
+
+                                          Projection Specification
+
+Posted: Oct. 2
+Due: Oct 30 (hard-copy in class, electronic version 11:59pm)
+
+The goal of this project is to implement a simple web application consisting of database queries. Web applications employ client-server architectures. Clients are typically browsers, such as IE, Firefox, etc. Currently, the most popular web servers are Apaches. When a web application involves databases applications, as it normally does, database servers are also employed. Clients, web servers and database servers are inter-connected through the Internet. Users enter inputs at the client side, via web pages. These inputs are then delivered to the web server for processing. The web server then invokes the application logic to carry out corresponding actions, including connecting to the database server for query processing.  Web pages and application logic are all stored at the server side. The former are dynamically fetched by clients, and the latter are invoked by the web servers at runtime. 
+
+Your task is to design and implement web pages and application logic. The web pages allow users to invoke several database queries, and the application logic formulates these queries and submits them to the database server. The following is the detail.
+
+The web pages must be user friendly. This means users should feel convenient to work with them. Typically, it can be organized into a sequence of forms, with one query each. For each query, you first give an English statement to tell what it is, so that a user will have a clear idea of what kinds of inputs are expected and what kinds of outputs will be returned. This statement is then followed by the input fields that prompt the user for inputs. The outputs may be displayed either on the same page or a separate page. 
+
+The application logic must be written with PHP. PHP is a powerful scripting language for generating dynamic web pages. In principle, you can place PHP script anywhere in the web site. But for convenience of marking, please place them under the same folder as your html pages. The following php function call allows you to connect to the mysql server from php script:
+
+     mysqli_connect(server address, user name, user password) 
+
+where server address is “mysql.cs.mun.ca”, and the other two parameters are your MySql user name and password. (For other function calls that you might need in implementing your database application, refer to the lecture notes.)  
+
+The database server is MySql installed in the department. For this project, the database consists of three tables, Suppliers, Parts and Catalog. These are defined on page 127 in the textbook. The database instances will be posted on the course web site. They are contained in the file data.doc. Your job is the following:
+
+1. Create the above tables, and populate them with the instances.
+
+2.   Implement the following types of queries as web applications:
+
+a) Given the name of a part, retrieve the information about each supplier who supplied it. This information can be any subset of the supplier’s id, supplier’s name, address, and the cost the supplier charged for that part.
+b) Given the cost, retrieve the names of the suppliers who have ever supplied a part with that cost or higher. 
+c) Given the pid, retrieve the names and addresses for the suppliers who charge the most for that part.
+d) Given the color and address, retrieve the names of the parts with that color which were supplied by all the suppliers in the given address. 
+e) Given the address, retrieve the sids and names of the suppliers in that address who do not supply any part.
+
+For the item 1 listed above, you can do it by using the query commands directly in the mysql environment. To login in directly to the mysql environment, you use the following at the command line:
+
+             mysql –h mysql.cs.mun.ca –u <username> -p <password>
+
+The sql commands implemented by the MySql server are almost the same as the ones you have learned from the cs3754 and this course. In case you find difference, refer to the mysql tutorial posted at the course web site. When you populate the tables, please use the data provided as is. 
+
+Some additional detail follows. Under your home directory, there is a special sub-directory called: .www. Place your html and php files under this or a sub-directory of this .www directory. (For the convenience of submission, I suggest you create a subdirectory called <your username>_4754 and place your files under it.) Then, the ACTION attribute of your form tag should take a value of your php file name without a preceding slash. Your web site address is: www.cs.mun.ca/~<your username>/<subdirectory name>/<html file name>.
+
+Submission:
+
+Hardcopy: A report that includes the following
+1. On the cover page, give your name, student number and project name.
+2. Explanations that give all necessary details for running your application.
+3. A screenshot of sample run of your application.
+4. The source code of the web page and php script.
+5. The relation instances for the three relations.
+
+Electronic submission:
+1. The source code for the web pages and php script. You should place these files under a single directory that is named as: <your user name>_4754. Then submit this directory electronically.
+2. The exact electronic submission process will be made known to you at some later stages.
+
+Important note: 
+
+1. You must copy the data set into your database exactly as what has been posted at the course web site, and use the schema exactly as specified in Exercise 4.3 (on page 127) of the textbook. Never change anything. Then, make sure your project works with them. Otherwise, when I run your project on my copy of the database, I may get incorrect answers. This will affect your final marks. 
+
+2. Keep everything in your MySql database and the files on you web site intact. These must all be in the departmental system (i.e, not in your PC). As one of the marking criteria, I may want to access your web site to see how it supports the above database applications. 
+
+3. Start early. No late submission will be accepted.
