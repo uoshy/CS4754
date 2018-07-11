@@ -5,15 +5,10 @@ Catalog(_sid: integer, _pid: integer, cost: real)
 
 
 
-
-usr/pwd: 201021102 tgd187/MKhIIOVg		(mkhiiovg)
-sql server: mysql.cs.mun.ca
-database name: cs4754_<username>
-
 1. Create the above tables, and populate them with the instances.
 For this, you can do it by using the query commands directly in the mysql environment. 
 To login in directly to the mysql environment, you use the following at the command line:
-             mysql –h mysql.cs.mun.ca –u <username> -p <password>
+             mysql â€“h mysql.cs.mun.ca â€“u <username> -p <password>
 
 
 *pid is supposed to be integer, but given data requires string
@@ -63,7 +58,7 @@ INSERT INTO Catalog VALUES
 http://ils.unc.edu/bmh/courses/623/exercise2
 
 a) Given the name of a part, retrieve the information about each supplier who supplied it. This 
-	information can be any subset of the supplier’s id, supplier’s name, address, and the 
+	information can be any subset of the supplierâ€™s id, supplierâ€™s name, address, and the 
 	cost the supplier charged for that part.
 ANSWER:
 	SELECT S.*, C.cost
